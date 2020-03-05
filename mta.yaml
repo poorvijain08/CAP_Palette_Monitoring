@@ -1,0 +1,73 @@
+---
+  ID: "CAP_Palette_Monitoring"
+  _schema-version: "2.1"
+  version: "0.0.1"
+  modules: 
+    - 
+      name: "UI_Palette_Monitoring"
+      type: "html5"
+      path: "UI_Palette_Monitoring"
+      parameters: 
+        disk-quota: "256M"
+        memory: "256M"
+      build-parameters: 
+        builder: "grunt"
+      requires: 
+        - 
+          name: "srv_api"
+          group: "destinations"
+          properties: 
+            forwardAuthToken: "true"
+            strictSSL: "false"
+            name: "srv_api"
+            url: "~{url}"
+        - 
+          name: "uaa_CAP_Palette_Monitoring"
+    - 
+      name: "CAP_Palette_Monitoring-DB_Palette_Monitoring"
+      type: "hdb"
+      path: "DB_Palette_Monitoring"
+      parameters: 
+        memory: "256M"
+        disk-quota: "256M"
+      requires: 
+        - 
+          name: "CAP_Palette_Monitoring-DB_Palette_Monitoring-hdi-container"
+    - 
+      name: "CAP_Palette_Monitoring-srv"
+      type: "java"
+      path: "srv"
+      parameters: 
+        memory: "1024M"
+      provides: 
+        - 
+          name: "srv_api"
+          properties: 
+            url: "${default-url}"
+      requires: 
+        - 
+          name: "CAP_Palette_Monitoring-DB_Palette_Monitoring-hdi-container"
+          properties: 
+            JBP_CONFIG_RESOURCE_CONFIGURATION: "[tomcat/webapps/ROOT/META-INF/context.xml:{\"service_name_for_DefaultDB\" : \"~{hdi-container-name}\"}]"
+    - 
+      name: "Node_JS_Palette_Monitoring"
+      type: "nodejs"
+      path: "Node_JS_Palette_Monitoring"
+      provides: 
+        - 
+          name: "Node_JS_Palette_Monitoring_api"
+          properties: 
+            url: "${default-url}"
+  resources: 
+    - 
+      name: "uaa_CAP_Palette_Monitoring"
+      parameters: 
+        path: "./xs-security.json"
+        service-plan: "application"
+        service: "xsuaa"
+      type: "org.cloudfoundry.managed-service"
+    - 
+      name: "CAP_Palette_Monitoring-DB_Palette_Monitoring-hdi-container"
+      type: "com.sap.xs.hdi-container"
+      properties: 
+        hdi-container-name: "${service-name}"
