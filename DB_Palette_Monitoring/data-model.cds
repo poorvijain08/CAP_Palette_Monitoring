@@ -1,0 +1,1 @@
+namespace DB_Palette_Monitoring.CAP_Palette_Monitoring;
